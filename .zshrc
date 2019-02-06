@@ -105,9 +105,6 @@ alias yt2mp3="youtube-dl --extract-audio --audio-format mp3"
 alias zshconfig="vim ~/.zshrc"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-xrandr --output eDP-1 --mode 1920x1080 --scale 1.5x1.5
-xrandr --output HDMI-1 --scale 2x2
-xrandr --output DP-1 --scale 2x2
 
 # tabtab source for electron-forge package
 # uninstall by removing these lines or running `tabtab uninstall electron-forge`
