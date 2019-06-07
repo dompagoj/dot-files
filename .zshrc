@@ -10,7 +10,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="awesomepanda"
+ZSH_THEME="agnoster"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -67,6 +67,7 @@ ZSH_THEME="awesomepanda"
 plugins=(
   git
   docker
+  npm
   zsh-syntax-highlighting
 )
 
@@ -103,6 +104,9 @@ alias open="xdg-open"
 alias bl="upower -i /org/freedesktop/UPower/devices/battery_BAT0 | egrep 'percentage|state'"
 alias yt2mp3="youtube-dl --extract-audio --audio-format mp3"
 alias zshconfig="vim ~/.zshrc"
+alias nvimconfig="vim ~/.config/nvim/init.vim"
+alias servers="cd ~/Documents/Servers"
+alias rg="rg -i"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -115,3 +119,23 @@ if [ -f '/usr/share/google-cloud-sdk/path.zsh.inc' ]; then . '/usr/share/google-
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/usr/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/usr/share/google-cloud-sdk/completion.zsh.inc'; fi
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/dompa/.sdkman"
+[[ -s "/home/dompa/.sdkman/bin/sdkman-init.sh" ]] && source "/home/dompa/.sdkman/bin/sdkman-init.sh"
+source /home/dompa/.oh-my-zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+#ONLY DISPLAY USERNAME IF SSH OR NOT DEFAULT 
+DEFAULT_USER=dompa
+prompt_context() {
+  if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+    prompt_segment black default "%(!.%{%F{yellow}%}.)$USER@%m"
+  fi
+}
+
+[[ -s /home/dompa/.autojump/etc/profile.d/autojump.sh ]] && source /home/dompa/.autojump/etc/profile.d/autojump.sh
+
+autoload -U compinit && compinit -u
+
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:/home/dompa/development/flutter/bin:$PATH"
