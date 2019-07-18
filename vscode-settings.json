@@ -4,6 +4,7 @@
   "editor.fontSize": 12,
   "editor.gotoLocation.multiple": "goto",
   "editor.tabSize": 2,
+  "editor.insertSpaces": true,
   "editor.renderWhitespace": "none",
   "explorer.autoReveal": false,
   "debug.toolBarLocation": "docked",
@@ -19,6 +20,7 @@
     "**/node_modules": true
   },
   "eslint.alwaysShowStatus": true,
+  "csharp.referencesCodeLens.enabled": false,
   "eslint.autoFixOnSave": true,
   "eslint.enable": true,
   "eslint.validate": [
@@ -45,6 +47,7 @@
   "prettier.tslintIntegration": true,
   "explorer.confirmDelete": false,
   "window.menuBarVisibility": "toggle",
+  "window.restoreWindows": "none",
   "window.title": "${appName}",
   "terminal.integrated.fontFamily": "Fira code",
   "explorer.confirmDragAndDrop": false,
@@ -72,6 +75,12 @@
   "dart.previewFlutterUiGuides": true,
   "dart.lineLength": 120,
   "dart.closingLabels": false,
-  "workbench.colorTheme": "Material Theme Darker"
+  "workbench.colorTheme": "Material Theme Darker High Contrast",
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "workbench.editor.showTabs": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
-

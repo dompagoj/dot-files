@@ -126,4 +126,3 @@ let g:lightline = {
       \ }
 
 autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-
