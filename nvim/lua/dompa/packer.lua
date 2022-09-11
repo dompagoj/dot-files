@@ -3,12 +3,33 @@ vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function(use)
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
+
+  use 'nvim-treesitter/nvim-treesitter'
+
   use 'morhetz/gruvbox'
+  use 'tomasiser/vim-code-dark'
+
   use 'tpope/vim-fugitive'
-  use 'junegunn/fzf.vim'
   use 'jiangmiao/auto-pairs'
-  use 'airblade/vim-gitgutter'
+  use 'windwp/nvim-ts-autotag'
   use 'folke/which-key.nvim'
+  use 'tpope/vim-commentary'
+  use 'nvim-lua/plenary.nvim'
+  use 'simrat39/symbols-outline.nvim'
+  use 'lewis6991/impatient.nvim'
+  use 'onsails/lspkind.nvim'
+  use 'glepnir/lspsaga.nvim'
+  use 'jose-elias-alvarez/null-ls.nvim'
+
+  use {
+    'nvim-telescope/telescope.nvim', tag = '0.1.0',
+  }
+
+  use 'vim-airline/vim-airline'
+
+  use { "akinsho/toggleterm.nvim", tag = '*', config = function()
+    require("toggleterm").setup()
+  end }
 
   use {
     'romgrk/barbar.nvim',
@@ -33,15 +54,34 @@ return require('packer').startup(function(use)
 
   -- Completion framework:
   use 'hrsh7th/nvim-cmp'
+  use 'hrsh7th/vim-vsnip'
+
 
   -- LSP completion source:
   use 'hrsh7th/cmp-nvim-lsp'
+  use 'hrsh7th/cmp-vsnip'
+
 
   -- Useful completion sources:
   use 'hrsh7th/cmp-nvim-lua'
   use 'hrsh7th/cmp-nvim-lsp-signature-help'
   use 'hrsh7th/cmp-path'
-  use 'hrsh7th/cmp-buffer'
+  -- use 'hrsh7th/cmp-buffer'
+
+  use {
+    'saecki/crates.nvim',
+    requires = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('crates').setup()
+    end,
+  }
+
+  use {
+    'lewis6991/gitsigns.nvim',
+    config = function()
+      require('gitsigns').setup()
+    end
+  }
 
   -- ******* Auto complete stuff ********
 

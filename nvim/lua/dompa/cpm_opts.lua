@@ -1,24 +1,3 @@
-local rt = {
-  server = {
-    settings = {
-      on_attach = function(_, bufnr)
-        -- Hover actions
-        vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-        -- Code action groups
-        vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-        require 'illuminate'.on_attach(client)
-      end,
-      ["rust-analyzer"] = {
-        checkOnSave = {
-          command = "clippy"
-        },
-      },
-    }
-  },
-}
-require('rust-tools').setup(rt)
-
-
 --Set completeopt to have a better completion experience
 -- :help completeopt
 -- menuone: popup even when there's only one match
@@ -42,13 +21,15 @@ autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
 
 -- Completion Plugin Setup
 local cmp = require 'cmp'
+local lsp_kind = require("lspkind").cmp_format({ mode = "symbol_text", maxwidth = 50 })
+
 cmp.setup({
   -- Enable LSP snippets
-  -- snippet = {
-  --   expand = function(args)
-  --     vim.fn["vsnip#anonymous"](args.body)
-  --   end,
-  -- },
+  snippet = {
+    expand = function(args)
+      vim.fn["vsnip#anonymous"](args.body)
+    end,
+  },
   mapping = {
     -- Add tab support
     ['<up>'] = cmp.mapping.select_prev_item(),
@@ -65,28 +46,77 @@ cmp.setup({
   -- Installed sources:
   sources = {
     { name = 'path' }, -- file paths
+    { name = 'vsnip' },
     { name = 'nvim_lsp', keyword_length = 3 }, -- from language server
     { name = 'nvim_lsp_signature_help' }, -- display function signatures with current parameter emphasized
     { name = 'nvim_lua', keyword_length = 2 }, -- complete neovim's Lua runtime API such vim.lsp.*
-    { name = 'buffer', keyword_length = 2 }, -- source current buffer
-    -- { name = 'vsnip', keyword_length = 2 }, -- nvim-cmp source for vim-vsnip
-    { name = 'calc' }, -- source for math calculation
+    { name = 'crates' },
+    -- { name = 'buffer', keyword_length = 2 }, -- source current buffer
   },
+  -- window = {
+  --   completion = cmp.config.window.bordered(),
+  --   documentation = cmp.config.window.bordered(),
+  -- },
   window = {
+    documentation = {
+      border = "rounded",
+      winhighlight = "NormalFloat:Pmenu,NormalFloat:Pmenu,CursorLine:PmenuSel,Search:None",
+    },
     completion = cmp.config.window.bordered(),
-    documentation = cmp.config.window.bordered(),
+    -- completion = {
+    --   winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
+    --   col_offset = -3,
+    --   side_padding = 1,
+    -- }
+    -- completion = {
+    --   border = "rounded",
+    --   winhighlight = "NormalFloat:Pmenu,NormalFloat:Pmenu,CursorLine:PmenuSel,Search:None",
+    -- },
+  },
+  experimental = {
+    ghost_text = true,
+  },
+  confirm_opts = {
+    behavior = cmp.ConfirmBehavior.Replace,
+    select = false,
   },
   formatting = {
-    fields = { 'menu', 'abbr', 'kind' },
-    format = function(entry, item)
-      local menu_icon = {
-        nvim_lsp = 'λ',
-        -- vsnip = '⋗',
-        buffer = 'Ω',
-        path = '🖫',
-      }
-      item.menu = menu_icon[entry.source.name]
-      return item
+    fields = { "kind", "abbr", 'menu' },
+    format = function(entry, vim_item)
+      -- vim_item.kind = kind_icons[vim_item.kind] or ""
+      -- return vim_item
+
+      local kind = lsp_kind(entry, vim_item)
+      print(kind)
+      local strings = vim.split(kind.kind, "%s", { trimempty = true })
+      kind.kind = " " .. strings[1] .. " "
+      kind.menu = "    (" .. strings[2] .. ")"
+
+      return kind
+
+
+      -- Kind icons
+      -- vim_item.kind = kind_icons[vim_item.kind]
+
+      -- -- NOTE: order matters
+      -- vim_item.menu = ({
+      --   nvim_lsp = " ",
+      --   nvim_lua = " ",
+      --   luasnip = " ",
+      --   buffer = " ",
+      --   path = " ",
+      --   emoji = " ",
+      -- })[entry.source.name]
+
+      -- return vim_item
     end,
   },
+})
+
+
+cmp.setup.cmdline('/', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = {
+    { name = 'buffer' }
+  }
 })
