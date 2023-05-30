@@ -6,23 +6,78 @@ return require('packer').startup(function(use)
 
   use 'nvim-treesitter/nvim-treesitter'
 
-  use 'morhetz/gruvbox'
-  use 'tomasiser/vim-code-dark'
+  use {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    config = function()
+      require("copilot").setup({})
+    end,
+  }
+
+  -- Themes
+  -- use 'dracula/vim'
+  use 'fenetikm/falcon'
+  use "rebelot/kanagawa.nvim"
+
+  -- use 'morhetz/gruvbox'
+  -- use 'tomasiser/vim-code-dark'
+  -- use({ 'projekt0n/github-nvim-theme' })
+  -- use "EdenEast/nightfox.nvim"
+  -- END Themes
 
   use 'tpope/vim-fugitive'
-  use 'jiangmiao/auto-pairs'
   use 'windwp/nvim-ts-autotag'
-  use 'folke/which-key.nvim'
+  use 'jiangmiao/auto-pairs'
   use 'tpope/vim-commentary'
   use 'nvim-lua/plenary.nvim'
   use 'simrat39/symbols-outline.nvim'
   use 'lewis6991/impatient.nvim'
   use 'onsails/lspkind.nvim'
-  use 'glepnir/lspsaga.nvim'
   use 'jose-elias-alvarez/null-ls.nvim'
 
+  use 'sakhnik/nvim-gdb'
+
   use {
-    'nvim-telescope/telescope.nvim', tag = '0.1.0',
+    "folke/todo-comments.nvim",
+    requires = "nvim-lua/plenary.nvim",
+    config = function()
+      require("todo-comments").setup {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      }
+    end
+  }
+
+  use({
+    "glepnir/lspsaga.nvim",
+    branch = "main",
+    config = function()
+      require("lspsaga").setup({})
+    end,
+    requires = {
+      { "nvim-tree/nvim-web-devicons" },
+      --Please make sure you install markdown and markdown_inline parser
+      { "nvim-treesitter/nvim-treesitter" }
+    }
+  })
+
+  -- use { 'akinsho/flutter-tools.nvim', requires = 'nvim-lua/plenary.nvim' }
+
+  use {
+    'folke/which-key.nvim',
+    config = function()
+      require('which-key').setup {
+        window = {
+          border = "single",   -- none, single, double, shadow
+          position = "bottom", -- bottom, top
+        }
+      }
+    end
+  }
+  use {
+    'nvim-telescope/telescope.nvim',
   }
 
   use 'vim-airline/vim-airline'
@@ -41,7 +96,7 @@ return require('packer').startup(function(use)
     requires = {
       'kyazdani42/nvim-web-devicons', -- optional, for file icons
     },
-    tag = 'nightly' -- optional, updated every week. (see issue #1193)
+    tag = 'nightly'                   -- optional, updated every week. (see issue #1193)
   }
 
 
@@ -60,7 +115,6 @@ return require('packer').startup(function(use)
   -- LSP completion source:
   use 'hrsh7th/cmp-nvim-lsp'
   use 'hrsh7th/cmp-vsnip'
-
 
   -- Useful completion sources:
   use 'hrsh7th/cmp-nvim-lua'
@@ -84,6 +138,4 @@ return require('packer').startup(function(use)
   }
 
   -- ******* Auto complete stuff ********
-
-
 end)

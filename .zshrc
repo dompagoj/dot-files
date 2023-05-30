@@ -1,41 +1,46 @@
-# Path to your oh-my-zsh installation.
-export ZSH="/home/dompa/.oh-my-zsh"
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
-export PATH="$HOME/.cargo/bin:$PATH" 
+export ZSH="/home/domagoj/.oh-my-zsh"
 
-ZSH_THEME="agnoster"
+#ZSH_THEME="robbyrussell"
+ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
+path+=('/home/domagoj/.dotnet')
+path+=('/home/domagoj/.dotnet/tools')
+path+=('/usr/local/share/flutter/bin')
+path+=('/home/domagoj/.npm-global/bin')
+path+=('/home/domagoj/.pub-cache/bin/')
+path+=('/home/domagoj/.platformio/penv/bin')
+
+
+export PATH
+export GIT_EDITOR='nvim'
+export FZF_DEFAULT_COMMAND='rg --files'
+
 plugins=(
-  git
-  docker
-  npm
-  zsh-syntax-highlighting
+	git
+	zsh-syntax-highlighting
+	zsh-autosuggestions
+	npm
 )
-
 source $ZSH/oh-my-zsh.sh
 
-alias apps="cd /home/dompa/Documents/Apps"
-alias open="xdg-open"
-alias bl="upower -i /org/freedesktop/UPower/devices/battery_BAT0 | egrep 'percentage|state'"
-alias yt2mp3="youtube-dl --extract-audio --audio-format mp3"
-alias zshconfig="vim ~/.zshrc"
-alias nvimconfig="vim ~/.config/nvim/init.vim"
-alias servers="cd ~/Documents/Servers"
-alias rg="rg -i"
+alias chrome=/opt/google/chrome/chrome
+alias mnt_network_drive=sudo mount -t cifs -o username=dom,vers=2.0 //192.168.2.1/share /mnt/network_drive
+alias dpc="node /home/domagoj/dev/dompa_comp/dpc/node_out/index.js"
+alias lg=lazygit
+alias get_idf='. $HOME/esp/esp-idf/export.sh'
+alias gdb=rust-gdb
+alias v=~/v_lang/v
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-source /home/dompa/.oh-my-zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-#ONLY DISPLAY USERNAME IF SSH OR NOT DEFAULT 
-DEFAULT_USER=dompa
-prompt_context() {
-  if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment black default "%(!.%{%F{yellow}%}.)$USER@%m"
-  fi
-}

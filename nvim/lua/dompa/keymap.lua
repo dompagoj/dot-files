@@ -1,8 +1,6 @@
 local keymap = require('dompa.utils')
 local api = require('nvim-tree.api')
 local telescope = require('telescope.builtin')
-local saga = require('lspsaga')
-saga.init_lsp_saga()
 
 local inoremap = keymap.inoremap
 local nnoremap = keymap.nnoremap
@@ -12,22 +10,18 @@ vim.g.mapleader = " "
 nnoremap('<C-R>', '<cmd>edit! <CR>')
 
 inoremap('<S-Tab>', '<C-d>')
-nnoremap('<C-b>', '<cmd>Ex<CR>')
--- nnoremap('<leader>w', '<cmd>bd<CR>')
-nnoremap('<leader>w', '<cmd>BufferClose!<CR>')
 
-nnoremap('<leader>e', api.tree.focus)
 
 nnoremap('<C-p>', function()
   telescope.find_files({
-    find_command = { 'rg', '--files' },
+    find_command = { 'rg', '--files', '--hidden' },
+    file_ignore_patterns = { 'node_modules', 'target', '.git/.*' },
   })
 end)
 
-nnoremap('<leader>r', telescope.lsp_references)
-nnoremap('<leader>F', telescope.live_grep)
-nnoremap('<leader>f', telescope.current_buffer_fuzzy_find)
 nnoremap('<C-E>', telescope.buffers)
+nnoremap('<M-e>', '<cmd>NvimTreeFindFile<CR>')
+nnoremap('<C-b>', '<cmd>NvimTreeFindFileToggle<CR> <cmd>NvimTreeResize 50<CR>')
 
 nnoremap('<M-o>', telescope.lsp_document_symbols)
 nnoremap('<M-O>', telescope.lsp_dynamic_workspace_symbols)
@@ -35,7 +29,6 @@ nnoremap('<M-O>', telescope.lsp_dynamic_workspace_symbols)
 nnoremap('gd', telescope.lsp_definitions)
 nnoremap('gtd', telescope.lsp_type_definitions)
 nnoremap('gi', telescope.lsp_implementations)
-nnoremap('<leader>d', telescope.diagnostics)
 
 nnoremap('gD', '<cmd>Lspsaga lsp_finder<CR>')
 nnoremap('<F12>', '<cmd>Lspsaga diagnostic_jump_next<CR>')
@@ -54,8 +47,6 @@ nnoremap('<M-t>', '<cmd>ToggleTerm direction=float<CR>')
 -- nnoremap('gi', vim.lsp.buf.implementation)
 
 
-
-
 nnoremap('<M-left>', '<Cmd>BufferPrevious 1<CR>')
 nnoremap('<M-right>', '<Cmd>BufferNext 1<CR>')
 
@@ -69,11 +60,12 @@ nnoremap('<M-7>', '<Cmd>BufferGoto 7<CR>')
 nnoremap('<M-8>', '<Cmd>BufferGoto 8<CR>')
 
 
-nnoremap('<M-C-L>', vim.lsp.buf.formatting)
+nnoremap('<M-C-L>', function()
+  vim.lsp.buf.format { async = true }
+end)
 
 
 vim.g.AutoPairsShortcutToggle = ''
-
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
   vim.keymap.set('t', '<M-t>', '<cmd>ToggleTerm <CR>', opts)
@@ -88,38 +80,24 @@ end
 vim.cmd('autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()')
 
 
-local Terminal = require('toggleterm.terminal').Terminal
-
-
-local lazygit = Terminal:new({
-  cmd = "lazygit",
-  dir = "git_dir",
-  direction = "float",
-  float_opts = {
-    border = "double",
-  },
-  -- function to run on opening the terminal
-  on_open = function(term)
-    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
-  end,
-  -- function to run on closing the terminal
-  on_close = function(term)
-    print('Closed!')
-    vim.cmd('edit!')
-  end,
-})
-
-function _lazygit_toggle()
-  lazygit:toggle()
-end
-
-vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", { noremap = true, silent = true })
-
-
+-- LEADER KEYMAPS --
 local crates = require('crates')
 
+nnoremap('<leader>ss', '<cmd>wa<CR>')
 nnoremap('<leader>cu', crates.upgrade_crate)
 nnoremap('<leader>cU', crates.upgrade_all_crates)
 nnoremap('<leader>cr', crates.open_repository)
 nnoremap('<leader>cD', crates.open_documentation)
-nnoremap('<leader>cd', '<cmd>!cargo doc --open --document-private-items<CR>')
+nnoremap('<leader>w', '<cmd>BufferClose!<CR>')
+nnoremap('<leader>q', '<cmd>q!<CR>')
+
+
+nnoremap('<leader>r', telescope.lsp_references)
+nnoremap('<leader>d', telescope.diagnostics)
+nnoremap('<leader>sf', telescope.live_grep)
+nnoremap('<leader>sg', telescope.git_status)
+nnoremap('<leader>f', telescope.current_buffer_fuzzy_find)
+
+local gs = require 'gitsigns'
+nnoremap('gr', gs.reset_hunk)
+nnoremap('<leader>g', gs.blame_line)

@@ -1,58 +1,80 @@
 require('dompa.cpm_opts')
+local nvim_lsp = require 'lspconfig'
 
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
 
 
 local on_attach = function(client, bufnr)
   if (client.name ~= 'null-ls') then
-    client.resolved_capabilities.document_formatting = false
-    client.resolved_capabilities.document_range_formatting = false
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
   end
-  print(client.name)
 end
 
-local rt = {
+
+local rt = require('rust-tools')
+
+rt.setup({
   capabilities = capabilities,
   server = {
-    settings = {
-      on_attach = function(client, bufnr)
-        client.server_capabilities.documentFormattingProvider = false
-
-        -- Hover actions
-        vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-        -- Code action groups
-        vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-      end,
-      ["rust-analyzer"] = {
-        checkOnSave = {
-          command = "clippy"
-        },
-        lens = {
-          enable = true,
-        }
+    on_attach = function(_, bufnr)
+      -- Hover actions
+      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+      -- Code action groups
+      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+    end,
+    ["rust-analyzer"] = {
+      checkOnSave = {
+        command = "clippy"
       },
-    }
+      lens = {
+        enable = true,
+      },
+      rustfmt = {
+        extraArgs = { "+nightly" }
+      }
+    },
   },
-}
-require('rust-tools').setup(rt)
+})
 
 
-require 'lspconfig'.tsserver.setup {
+nvim_lsp.tsserver.setup {
   capabilities = capabilities,
   on_attach = on_attach
 }
 
-
--- omnisharp lsp config
-require 'lspconfig'.omnisharp.setup {
-  capabilities = capabilities,
-  on_attach = function(client, bufnr)
-    vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-    client.server_capabilities.documentFormattingProvider = false
-  end,
-  cmd = { "/home/domagoj/.local/share/nvim/mason/bin/omnisharp", "--languageserver", "--hostPID", tostring(pid) },
+vim.diagnostic.config {
+  update_in_insert = false
 }
 
-vim.diagnostic.config({
-  update_in_insert = true
-})
+nvim_lsp.volar.setup {
+  capabilities = capabilities,
+  on_attach = on_attach
+}
+
+nvim_lsp.omnisharp.setup {
+  capabilities = capabilities
+}
+
+nvim_lsp.tailwindcss.setup {
+  capabilities = capabilities
+}
+
+-- nvim_lsp.clangd.setup {
+--   capabilities = capabilities
+-- }
+
+nvim_lsp.cssls.setup {
+  capabilities = capabilities
+}
+
+-- require("flutter-tools").setup {}
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    virtual_text = true,
+    underline = true,
+    signs = false,
+  }
+)

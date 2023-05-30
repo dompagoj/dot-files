@@ -1,37 +1,27 @@
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 require('dompa.packer')
-require('impatient').enable_profile()
+require('impatient')
 
 require('nvim-tree').setup({
   disable_netrw = true,
   filters = {
     dotfiles = false,
-    custom = { '.git' },
-    exclude = {},
+    custom = { '^\\.git/.*' }
+  },
+  actions = {
+    open_file = {
+      resize_window = true
+    },
   },
 })
 require("mason").setup()
 require('mason-lspconfig').setup()
 
-vim.opt.guicursor = ""
+require('dompa.opts')
 
-vim.opt.nu = true
-vim.opt.relativenumber = true
-
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
-vim.opt.hlsearch = false
-vim.opt.incsearch = true
-vim.opt.smartindent = true
-vim.opt.swapfile = false
-
-vim.opt.wrap = false
-
--- vim.cmd('colorscheme gruvbox')
-vim.cmd('colorscheme codedark')
-vim.cmd('filetype plugin indent on')
-vim.cmd('set mouse+=a')
+require('nvim-ts-autotag').setup()
 
 -- nnoremap('<leader>pv', '<cmd>Ex<CR>')
 require('dompa.lsp')
@@ -39,3 +29,5 @@ require('dompa.symbol-outline')
 require('dompa.null-ls')
 
 require('dompa.keymap')
+
+-- require("telescope").load_extension("flutter")

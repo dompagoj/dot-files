@@ -7,12 +7,8 @@
 -- updatetime: set updatetime for CursorHold
 vim.opt.completeopt = { 'menuone', 'noselect', 'noinsert' }
 vim.opt.shortmess = vim.opt.shortmess + { c = true }
-vim.api.nvim_set_option('updatetime', 300)
 
--- Fixed column for diagnostics to appear
--- Show autodiagnostic popup on cursor hover_range
--- Goto previous / next diagnostic warning / error
--- Show inlay_hints more frequently
+
 vim.cmd([[
 set signcolumn=yes
 autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
@@ -21,7 +17,34 @@ autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
 
 -- Completion Plugin Setup
 local cmp = require 'cmp'
-local lsp_kind = require("lspkind").cmp_format({ mode = "symbol_text", maxwidth = 50 })
+local lsp_kind = require("lspkind").cmp_format({ mode = "symbol_text", maxwidth = 75 })
+local compare = require("cmp.config.compare")
+
+local lspkind_comparator = function(conf)
+  local lsp_types = require('cmp.types').lsp
+  return function(entry1, entry2)
+    if entry1.source.name ~= 'nvim_lsp' then
+      if entry2.source.name == 'nvim_lsp' then
+        return false
+      else
+        return nil
+      end
+    end
+    local kind1 = lsp_types.CompletionItemKind[entry1:get_kind()]
+    local kind2 = lsp_types.CompletionItemKind[entry2:get_kind()]
+
+    local priority1 = conf.kind_priority[kind1] or 0
+    local priority2 = conf.kind_priority[kind2] or 0
+    if priority1 == priority2 then
+      return nil
+    end
+    return priority2 < priority1
+  end
+end
+
+local label_comparator = function(entry1, entry2)
+  return entry1.completion_item.label < entry2.completion_item.label
+end
 
 cmp.setup({
   -- Enable LSP snippets
@@ -29,6 +52,9 @@ cmp.setup({
     expand = function(args)
       vim.fn["vsnip#anonymous"](args.body)
     end,
+  },
+  completion = {
+    completeopt = 'menu,menuone,noinsert'
   },
   mapping = {
     -- Add tab support
@@ -45,12 +71,12 @@ cmp.setup({
   },
   -- Installed sources:
   sources = {
-    { name = 'path' }, -- file paths
-    { name = 'vsnip' },
-    { name = 'nvim_lsp', keyword_length = 3 }, -- from language server
-    { name = 'nvim_lsp_signature_help' }, -- display function signatures with current parameter emphasized
-    { name = 'nvim_lua', keyword_length = 2 }, -- complete neovim's Lua runtime API such vim.lsp.*
+    { name = 'nvim_lsp',               max_item_count = 20 }, -- from language server
+    { name = 'nvim_lsp_signature_help' },                     -- display function signatures with current parameter emphasized
+    { name = 'nvim_lua' },                                    -- complete neovim's Lua runtime API such vim.lsp.*
     { name = 'crates' },
+    { name = 'path' },                                        -- file paths
+    { name = 'vsnip' },
     -- { name = 'buffer', keyword_length = 2 }, -- source current buffer
   },
   -- window = {
@@ -63,14 +89,50 @@ cmp.setup({
       winhighlight = "NormalFloat:Pmenu,NormalFloat:Pmenu,CursorLine:PmenuSel,Search:None",
     },
     completion = cmp.config.window.bordered(),
-    -- completion = {
-    --   winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
-    --   col_offset = -3,
-    --   side_padding = 1,
-    -- }
-    -- completion = {
-    --   border = "rounded",
-    --   winhighlight = "NormalFloat:Pmenu,NormalFloat:Pmenu,CursorLine:PmenuSel,Search:None",
+  },
+  sorting = {
+    comparators = {
+      -- compare.length,
+      compare.exact,
+      lspkind_comparator({
+        kind_priority = {
+          Field = 11,
+          Property = 11,
+          Constant = 10,
+          Enum = 10,
+          EnumMember = 10,
+          Event = 10,
+          Function = 10,
+          Method = 10,
+          Operator = 10,
+          Reference = 10,
+          Struct = 10,
+          Variable = 9,
+          File = 8,
+          Folder = 8,
+          Class = 5,
+          Color = 5,
+          Module = 5,
+          Keyword = 2,
+          Constructor = 1,
+          Interface = 1,
+          Text = 1,
+          TypeParameter = 1,
+          Unit = 1,
+          Value = 1,
+          Snippet = 0,
+        },
+      }),
+      label_comparator,
+    },
+    -- comparators = {
+    --   compare.exact,
+    --   compare.order,
+    --   compare.score, -- based on :  score = score + ((#sources - (source_index - 1)) * sorting.priority_weight)
+    --   -- compare.length,
+    --   -- compare.kind,
+    --   -- compare.offset,
+    --   -- compare.sort_text,
     -- },
   },
   experimental = {
@@ -83,40 +145,15 @@ cmp.setup({
   formatting = {
     fields = { "kind", "abbr", 'menu' },
     format = function(entry, vim_item)
-      -- vim_item.kind = kind_icons[vim_item.kind] or ""
-      -- return vim_item
+      local lsp_item = lsp_kind(entry, vim_item)
+      local strings = vim.split(lsp_item.kind, "%s", { trimempty = true })
+      lsp_item.kind = " " .. strings[1] .. " "
 
-      local kind = lsp_kind(entry, vim_item)
-      print(kind)
-      local strings = vim.split(kind.kind, "%s", { trimempty = true })
-      kind.kind = " " .. strings[1] .. " "
-      kind.menu = "    (" .. strings[2] .. ")"
+      if strings[2] ~= nil then
+        lsp_item.menu = "    (" .. strings[2] .. ")"
+      end
 
-      return kind
-
-
-      -- Kind icons
-      -- vim_item.kind = kind_icons[vim_item.kind]
-
-      -- -- NOTE: order matters
-      -- vim_item.menu = ({
-      --   nvim_lsp = " ",
-      --   nvim_lua = " ",
-      --   luasnip = " ",
-      --   buffer = " ",
-      --   path = " ",
-      --   emoji = " ",
-      -- })[entry.source.name]
-
-      -- return vim_item
+      return lsp_item
     end,
   },
-})
-
-
-cmp.setup.cmdline('/', {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = {
-    { name = 'buffer' }
-  }
 })
